@@ -1,0 +1,33 @@
+[package]
+name = "firecore-audio"
+version = "0.0.1-alpha.1"
+authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+### Global, mutable variables
+
+lazy_static = "1.4"
+parking_lot = "0.11"
+dashmap = "4.0"
+
+### Serialization
+
+serde = { version = "1.0", features = ["derive"] }
+
+### Game engine (for logging)
+
+#macroquad = { git = "https://github.com/DoNotDoughnut/macroquad", default-features = false, features = ["log-impl", "experimental", "serde"] }
+macroquad = { git = "https://github.com/not-fl3/macroquad" }
+
+### Audio libraries
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+kira = { version = "0.4", default-features = false, features = ["ogg"] } # To - do: Figure out how to play audio without taking up lots of memory and storage space, add agb support/midi support
+lewton = { version = "0.10.1" } # Included in kira
+
+[target.'cfg(target_arch="wasm32")'.dependencies]
+quad-snd = { git = "https://github.com/not-fl3/quad-snd" } # WebAudio
