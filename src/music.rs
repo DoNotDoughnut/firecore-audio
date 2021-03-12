@@ -119,7 +119,7 @@ impl Music {
             Music::Route2 => Some(include_bytes!("../music/route2.ogg")),
             _ => None,
         };
-        #[cfg(debug_assertions)] {
+        #[cfg(any(debug_assertions, target_arch = "wasm32"))] {
             if bytes.is_none() {
                 bytes = match self {
                     
