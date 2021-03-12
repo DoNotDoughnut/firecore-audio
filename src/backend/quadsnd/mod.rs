@@ -15,7 +15,7 @@ pub async fn bind_world_music() {
                 }
                 None => {
                     let path = String::from("music/") + music.file_name() + ".ogg";
-                    match crate::util::file::load_file(&path).await {
+                    match macroquad::prelude::load_file(&path).await {
                         Ok(bytes) => {
                             read_ogg(*music, &bytes);
                         }

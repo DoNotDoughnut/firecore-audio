@@ -3,6 +3,11 @@ pub mod sound;
 
 pub mod backend;
 
+#[test]
+fn main() {
+    println!("Test!");
+}
+
 // pub mod error;
 
 pub fn create() {
@@ -25,14 +30,14 @@ pub fn play_music(music: music::Music) {
     #[cfg(not(target_arch = "wasm32"))]
     self::backend::kira::context::music::MUSIC_CONTEXT.play_music(music);
     #[cfg(target_arch = "wasm32")]
-    self::backend::quadsnd::context::music::play_music(music);
+    self::backend::quadsnd::music::play_music(music);
 }
 
 pub fn get_music_playing() -> Option<music::Music> {
     #[cfg(not(target_arch = "wasm32"))]
     return self::backend::kira::context::music::MUSIC_CONTEXT.get_music_playing();
     #[cfg(target_arch = "wasm32")]
-    return self::backend::quadsnd::context::music::get_current_music();
+    return self::backend::quadsnd::music::get_current_music();
 }
 
 pub fn play_sound(sound: sound::Sound) {
