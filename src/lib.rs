@@ -1,3 +1,5 @@
+use firecore_util::{music::Music, sound::Sound};
+
 pub mod music;
 pub mod sound;
 
@@ -26,27 +28,27 @@ pub async fn bind_world_music() {
     self::backend::quadsnd::bind_world_music().await;
 }
 
-pub fn play_music(music: music::Music) {
+pub fn play_music(music: Music) {
     #[cfg(not(target_arch = "wasm32"))]
     self::backend::kira::context::music::MUSIC_CONTEXT.play_music(music);
     #[cfg(target_arch = "wasm32")]
     self::backend::quadsnd::music::play_music(music);
 }
 
-pub fn get_music_playing() -> Option<music::Music> {
+pub fn get_music_playing() -> Option<Music> {
     #[cfg(not(target_arch = "wasm32"))]
     return self::backend::kira::context::music::MUSIC_CONTEXT.get_music_playing();
     #[cfg(target_arch = "wasm32")]
     return self::backend::quadsnd::music::get_current_music();
 }
 
-pub fn play_sound(sound: sound::Sound) {
+pub fn play_sound(sound: Sound) {
     // macroquad::prelude::info!("Playing sound {:?}", sound);
     #[cfg(not(target_arch = "wasm32"))]
     self::backend::kira::context::sound::SOUND_CONTEXT.play_sound(sound)
 }
 
-pub fn add_sound(sound: sound::Sound, bytes: &[u8]) {
+pub fn add_sound(sound: Sound, bytes: &[u8]) {
     #[cfg(not(target_arch = "wasm32"))]
     backend::kira::context::sound::SOUND_CONTEXT.add_sound(sound, bytes);
 }

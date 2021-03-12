@@ -2,7 +2,7 @@ use dashmap::DashMap as HashMap;
 // use kira::instance::handle::InstanceHandle;
 use kira::sound::handle::SoundHandle;
 use macroquad::prelude::warn;
-use crate::sound::Sound;
+use firecore_util::sound::Sound;
 
 lazy_static::lazy_static! {
     pub static ref SOUND_CONTEXT: SoundContext = SoundContext::new();

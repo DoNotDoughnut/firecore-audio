@@ -4,7 +4,9 @@ use kira::sound::handle::SoundHandle;
 use dashmap::DashMap as HashMap;
 use macroquad::prelude::warn;
 use parking_lot::RwLock;
-use crate::music::Music;
+use firecore_util::music::Music;
+
+use crate::music::loop_start;
 
 lazy_static::lazy_static! {
     pub static ref MUSIC_CONTEXT: MusicContext = MusicContext::default();
@@ -28,7 +30,7 @@ impl MusicContext {
             match self.music_map.get_mut(&music) {
                 Some(mut sound) => {
                     match sound.play(kira::instance::InstanceSettings {
-                        loop_start: kira::instance::InstanceLoopStart::Custom(music.loop_start().unwrap_or_default()),
+                        loop_start: kira::instance::InstanceLoopStart::Custom(loop_start(&music).unwrap_or_default()),
                         ..Default::default()
                     }) {
                         Ok(instance) => {
@@ -57,13 +59,9 @@ impl MusicContext {
     
 }
 
-impl Music {
-
-    pub fn settings(&self) -> SoundSettings {
-        SoundSettings {
-            default_loop_start: self.loop_start(),
-            ..Default::default()
-        }
+pub fn settings(music: &Music) -> SoundSettings {
+    SoundSettings {
+        default_loop_start: loop_start(music),
+        ..Default::default()
     }
-
 }

@@ -8,6 +8,10 @@ edition = "2018"
 
 [dependencies]
 
+### Audio variables
+
+firecore-util = { git = "https://github.com/DoNotDoughnut/firecore-util" }
+
 ### Global, mutable variables
 
 lazy_static = "1.4"

@@ -1,20 +1,20 @@
 use macroquad::prelude::info;
 use macroquad::prelude::warn;
 use self::music::MUSIC_MAP;
-use crate::music::Music;
+use firecore_util::music::Music;
 
 pub mod music;
 
 pub async fn bind_world_music() {
     info!("Loading music...");
-    for music in crate::music::MUSIC_LIST {
+    for music in firecore_util::music::MUSIC_LIST {
         if !MUSIC_MAP.contains_key(music) {
-            match music.included_bytes() {
+            match crate::music::included_bytes(&music) {
                 Some(bytes) => {
                     read_ogg(*music, bytes);
                 }
                 None => {
-                    let path = String::from("music/") + music.file_name() + ".ogg";
+                    let path = String::from("music/") + crate::music::file_name(&music) + ".ogg";
                     match macroquad::prelude::load_file(&path).await {
                         Ok(bytes) => {
                             read_ogg(*music, &bytes);
@@ -30,7 +30,7 @@ pub async fn bind_world_music() {
 }
 
 pub fn bind_gamefreak() {
-    if let Some(bytes) = Music::IntroGamefreak.included_bytes() {
+    if let Some(bytes) = crate::music::included_bytes(&Music::IntroGamefreak) {
         read_ogg(Music::IntroGamefreak, bytes);
     }
 }

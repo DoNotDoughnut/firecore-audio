@@ -2,8 +2,10 @@ use kira::manager::AudioManager;
 use macroquad::prelude::debug;
 use macroquad::prelude::warn;
 use parking_lot::Mutex;
-use crate::music::MUSIC_LIST;
-use crate::music::Music;
+use firecore_util::music::MUSIC_LIST;
+use firecore_util::music::Music;
+
+use crate::music::included_bytes;
 
 pub mod music;
 pub mod sound;
@@ -35,9 +37,9 @@ impl AudioContext {
         // let mut errors = Vec::new();
         for music in MUSIC_LIST {
             if !self::music::MUSIC_CONTEXT.music_map.contains_key(&music) {
-                match music.included_bytes() {
+                match included_bytes(&music) {
                     Some(bytes) => {
-                        match super::from_ogg_bytes(bytes, kira::sound::SoundSettings::default()) {
+                        match super::from_ogg_bytes(bytes, music::settings(&music)) {
                             Ok(sound) => match self.audio_manager.lock().as_mut() {
                                 Some(manager) => {
                                     match manager.add_sound(sound) {
@@ -87,7 +89,7 @@ impl AudioContext {
     pub fn bind_gamefreak(&self) {
         match self.audio_manager.lock().as_mut() {
             Some(manager) => {
-                match super::from_ogg_bytes(Music::IntroGamefreak.included_bytes().unwrap(), kira::sound::SoundSettings::default()) {
+                match super::from_ogg_bytes(included_bytes(&Music::IntroGamefreak).unwrap(), kira::sound::SoundSettings::default()) {
                     Ok(sound) => match manager.add_sound(sound) {
                         Ok(sound) => {
                             self::music::MUSIC_CONTEXT.music_map.insert(Music::IntroGamefreak, sound);
