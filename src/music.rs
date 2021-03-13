@@ -29,6 +29,7 @@ pub const fn file_name(music: &Music) -> &'static str {
         Music::Gym => "gym",
         Music::ViridianForest => "viridian_forest",
         Music::MountMoon => "mt_moon",
+        Music::OaksLab => "oaks_lab",
 
         
         Music::EncounterBoy => "encounter_boy",
@@ -37,6 +38,8 @@ pub const fn file_name(music: &Music) -> &'static str {
         Music::BattleWild => "vs_wild",
         Music::BattleTrainer => "vs_trainer",
         Music::BattleGym => "vs_gym",
+
+        Music::Oak => "oak",
         
     }
 }
@@ -69,6 +72,8 @@ pub const fn included_bytes(music: &Music) -> Option<&[u8]> { // To - do: Load d
                 Music::Gym => Some(include_bytes!("../music/gym.ogg")),
                 Music::EncounterGirl => Some(include_bytes!("../music/encounter_girl.ogg")),
                 Music::ViridianForest => Some(include_bytes!("../music/viridian_forest.ogg")),
+                Music::Oak => Some(include_bytes!("../music/oak.ogg")),
+                Music::OaksLab => Some(include_bytes!("../music/oaks_lab.ogg")),
                 _ => None,
             }
         }
