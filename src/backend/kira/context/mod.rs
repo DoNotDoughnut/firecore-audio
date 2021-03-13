@@ -64,7 +64,7 @@ impl AudioContext {
                     None => {
                         #[cfg(not(debug_assertions))] {
                             match self.audio_manager.lock().as_mut() {
-                                Some(manager) => match manager.load_sound(String::from("music/") + music.file_name() + ".ogg", kira::sound::SoundSettings::default()) {
+                                Some(manager) => match manager.load_sound(String::from("music/") + crate::music::file_name(&music) + ".ogg", kira::sound::SoundSettings::default()) {
                                     Ok(sound) => {
                                         self::music::MUSIC_CONTEXT.music_map.insert(*music, sound);
                                         debug!("Loaded \"{:?}\" successfully", music);
