@@ -36,78 +36,60 @@ impl AudioContext {
     pub fn bind_music(&self) {
         // let mut errors = Vec::new();
         for music in MUSIC_LIST {
-            if !self::music::MUSIC_CONTEXT.music_map.contains_key(&music) {
-                match included_bytes(&music) {
-                    Some(bytes) => {
-                        match super::from_ogg_bytes(bytes, music::settings(&music)) {
-                            Ok(sound) => match self.audio_manager.lock().as_mut() {
-                                Some(manager) => {
-                                    match manager.add_sound(sound) {
-                                        Ok(sound) => {
-                                            self::music::MUSIC_CONTEXT.music_map.insert(*music, sound);
-                                            debug!("Loaded music \"{:?}\" successfully", music);
-                                        }
-                                        Err(err) => {
-                                            // errors.push(AudioError::AddSoundError(err));
-                                            warn!("Problem loading music \"{:?}\" with error {}", music, err);
-                                        }
-                                    }
-                                }
-                                None => {}
-                            }
-                            Err(err) => {
-                                // errors.push(AudioError::DecodeError(err));
-                                warn!("Problem decoding bytes of \"{:?}\" in executable with error {}", music, err);
-                            }
-                        }
-                    }
-                    None => {
-                        #[cfg(not(debug_assertions))] {
-                            match self.audio_manager.lock().as_mut() {
-                                Some(manager) => match manager.load_sound(String::from("music/") + crate::music::file_name(&music) + ".ogg", kira::sound::SoundSettings::default()) {
-                                    Ok(sound) => {
-                                        self::music::MUSIC_CONTEXT.music_map.insert(*music, sound);
-                                        debug!("Loaded \"{:?}\" successfully", music);
-                                    }
-                                    Err(err) => {
-                                        // errors.push(AudioError::LoadSoundError(err));
-                                        warn!("Problem loading music \"{:?}\" with error {}", music, err);
-                                    }
-                                }
-                                None => {
-                                    // errors.push(AudioError::NoAudioManager);
-                                    warn!("Could not get audio manager from audio context while loading music \"{:?}\"!", music);
-                                }
-                            }
-                        }
-                    }
-                }
+            if !self::music::MUSIC_CONTEXT.music_map.contains_key(music) {
+                self.bind(music);
             }
         }
     }
 
     pub fn bind_gamefreak(&self) {
-        match self.audio_manager.lock().as_mut() {
-            Some(manager) => {
-                match super::from_ogg_bytes(included_bytes(&Music::IntroGamefreak).unwrap(), kira::sound::SoundSettings::default()) {
-                    Ok(sound) => match manager.add_sound(sound) {
-                        Ok(sound) => {
-                            self::music::MUSIC_CONTEXT.music_map.insert(Music::IntroGamefreak, sound);
-                        },
-                        Err(err) => {
-                            // Err(SetupError::AddSound(err))
-                            warn!("Could not load gamefreak intro music with error {}", err);
+        self.bind(&Music::IntroGamefreak);
+    }
+
+    fn bind(&self, music: &Music) {
+        match included_bytes(music) {
+            Some(bytes) => {
+                match super::from_ogg_bytes(bytes, music::settings(music)) {
+                    Ok(sound) => match self.audio_manager.lock().as_mut() {
+                        Some(manager) => {
+                            match manager.add_sound(sound) {
+                                Ok(sound) => {
+                                    self::music::MUSIC_CONTEXT.music_map.insert(*music, sound);
+                                    debug!("Loaded music \"{:?}\" successfully", music);
+                                }
+                                Err(err) => {
+                                    // errors.push(AudioError::AddSoundError(err));
+                                    warn!("Problem loading music \"{:?}\" with error {}", music, err);
+                                }
+                            }
                         }
+                        None => {}
                     }
                     Err(err) => {
-                        // Err(SetupError::Decode(err))
-                        warn!("Could not decode gamefreak into audio with error {}", err);
+                        // errors.push(AudioError::DecodeError(err));
+                        warn!("Problem decoding bytes of \"{:?}\" in executable with error {}", music, err);
                     }
                 }
             }
             None => {
-                // Err(SetupError::MissingAudioManager)
-                warn!("Could not bind gamefreak music due to missing audio manager!");
+                #[cfg(not(debug_assertions))] {
+                    match self.audio_manager.lock().as_mut() {
+                        Some(manager) => match manager.load_sound(String::from("music/") + crate::music::file_name(&music) + ".ogg", kira::sound::SoundSettings::default()) {
+                            Ok(sound) => {
+                                self::music::MUSIC_CONTEXT.music_map.insert(*music, sound);
+                                debug!("Loaded \"{:?}\" successfully", music);
+                            }
+                            Err(err) => {
+                                // errors.push(AudioError::LoadSoundError(err));
+                                warn!("Problem loading music \"{:?}\" with error {}", music, err);
+                            }
+                        }
+                        None => {
+                            // errors.push(AudioError::NoAudioManager);
+                            warn!("Could not get audio manager from audio context while loading music \"{:?}\"!", music);
+                        }
+                    }
+                }
             }
         }
     }
