@@ -2,8 +2,6 @@ use parking_lot::{Mutex, RwLock};
 use dashmap::DashMap as HashMap;
 use quad_snd::mixer::{Sound, SoundId, SoundMixer, Volume};
 
-use firecore_util::music::Music;
-
 lazy_static::lazy_static! {
     pub static ref MIXER: Mutex<SoundMixer> = Mutex::new(SoundMixer::new_ext(Volume(0.2)));
     pub static ref MUSIC_MAP: HashMap<Music, Sound> = HashMap::new();

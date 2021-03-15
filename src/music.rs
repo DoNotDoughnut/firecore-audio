@@ -7,7 +7,7 @@ lazy_static::lazy_static! {
 }
 
 pub fn add_track(music_data: SerializedMusicData) {
-    MUSIC_ID_MAP.insert(music_data.data.identifier.clone(), music_data.data.track_id);
+    MUSIC_ID_MAP.insert(music_data.music.name.clone(), music_data.music.track);
     #[cfg(not(target_arch = "wasm32"))]
     crate::backend::kira::context::add_track(music_data);
 }

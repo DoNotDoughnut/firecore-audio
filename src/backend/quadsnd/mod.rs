@@ -1,7 +1,6 @@
 use macroquad::prelude::info;
 use macroquad::prelude::warn;
 use self::music::MUSIC_MAP;
-use firecore_util::music::Music;
 
 pub mod music;
 

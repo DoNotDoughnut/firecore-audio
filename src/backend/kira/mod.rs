@@ -1,5 +1,6 @@
 pub mod context;
 pub mod music;
+pub mod sound;
 
 // pub fn bind_world_music() {
 //     if cfg!(not(target_arch = "wasm32")) {

@@ -17,35 +17,42 @@ pub fn play_music(music: MusicId) {
             if let Some((_, mut instance)) = current.take() {
                 if let Err(err) = instance.stop(StopInstanceSettings::default()) {
                     // handle error
-                } else {
-                    match MUSIC_MAP.get_mut(&music) {
-                        Some(mut music) => {
-                            let loop_start = music.0.loop_start.unwrap_or_default();
-                            match music.1.play(InstanceSettings {
-                                loop_start: kira::instance::InstanceLoopStart::Custom(loop_start),
-                                ..Default::default()
-                            }) {
-                                Ok(instance) => {
-                                    *current = Some((*music.key(), instance));
-                                }
-                                Err(err) => {
-                                    // handle error
-                                }
-                            }
-                        }
-                        None => {
-                            // handle error
-                        }
-                    }
+                    return;
                 }
             }
         }
         None => {
             // handle error
+            return;
         }
     }
-    
-    
+    match MUSIC_MAP.get_mut(&music) {
+        Some(mut music) => {
+            match CURRENT_MUSIC.try_lock() {
+                Some(mut current) => {
+                    let loop_start = music.0.loop_start.unwrap_or_default();
+                    match music.1.play(InstanceSettings {
+                        loop_start: kira::instance::InstanceLoopStart::Custom(loop_start),
+                        ..Default::default()
+                    }) {
+                        Ok(instance) => {
+                            *current = Some((*music.key(), instance));
+                        }
+                        Err(err) => {
+                            // handle error
+                        }
+                    }
+                }
+                None => {
+                    // handle error
+                }
+            }
+            
+        }
+        None => {
+            // handle error
+        }
+    }   
 }
 
 pub fn get_current_music() -> Option<MusicId> {

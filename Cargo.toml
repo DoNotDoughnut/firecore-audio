@@ -1,6 +1,6 @@
 [package]
 name = "firecore-audio"
-version = "0.1.0-alpha.1"
+version = "0.1.0"
 authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
 edition = "2018"
 
@@ -12,8 +12,7 @@ include = []
 
 ### Audio variables
 
-firecore-audio-lib = { path = "../firecore-audio-lib" }
-firecore-util = { git = "https://github.com/DoNotDoughnut/firecore-util" }
+firecore-audio-lib = { git = "https://github.com/DoNotDoughnut/firecore-audio-lib" }
 
 ### Global, mutable variables
 
