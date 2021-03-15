@@ -6,24 +6,24 @@ use dashmap::DashMap;
 use parking_lot::Mutex;
 use firecore_audio_lib::music::{MusicId, MusicData};
 
+use crate::error::PlayAudioError;
+
 lazy_static::lazy_static! {
     pub static ref MUSIC_MAP: DashMap<MusicId, (MusicData, SoundHandle)> = DashMap::new();
     pub static ref CURRENT_MUSIC: Mutex<Option<(MusicId, InstanceHandle)>> = Mutex::new(None);
 }
 
-pub fn play_music(music: MusicId) {
+pub fn play_music(music: MusicId) -> Result<(), PlayAudioError> {
     match CURRENT_MUSIC.try_lock() {
         Some(mut current) => {
             if let Some((_, mut instance)) = current.take() {
                 if let Err(err) = instance.stop(StopInstanceSettings::default()) {
-                    // handle error
-                    return;
+                    return Err(PlayAudioError::CurrentError(err));
                 }
             }
         }
         None => {
-            // handle error
-            return;
+            return Err(PlayAudioError::CurrentLocked);
         }
     }
     match MUSIC_MAP.get_mut(&music) {
@@ -37,20 +37,21 @@ pub fn play_music(music: MusicId) {
                     }) {
                         Ok(instance) => {
                             *current = Some((*music.key(), instance));
+                            Ok(())
                         }
                         Err(err) => {
-                            // handle error
+                            Err(PlayAudioError::PlayError(err))
                         }
                     }
                 }
                 None => {
-                    // handle error
+                    Err(PlayAudioError::CurrentLocked)
                 }
             }
             
         }
         None => {
-            // handle error
+            Err(PlayAudioError::Missing)
         }
     }   
 }

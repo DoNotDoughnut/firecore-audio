@@ -4,6 +4,8 @@ use kira::manager::AudioManager;
 use kira::sound::SoundSettings;
 use parking_lot::Mutex;
 
+use crate::error::AddAudioError;
+
 lazy_static::lazy_static! {
     pub static ref AUDIO_CONTEXT: Mutex<Option<AudioManager>> = Mutex::new(None);
 }
@@ -17,36 +19,25 @@ pub fn create() -> Result<(), kira::manager::error::SetupError> {
     Ok(())
 }
 
-pub fn add_track(music_data: SerializedMusicData) {
+pub fn add_track(music_data: SerializedMusicData) -> Result<(), AddAudioError> {
     match super::from_ogg_bytes(&music_data.bytes, SoundSettings::default()) {
         Ok(sound) => match AUDIO_CONTEXT.lock().as_mut() {
             Some(manager) => {
                 match manager.add_sound(sound) {
                     Ok(sound) => {
-                        // println!("Added music");
                         super::music::MUSIC_MAP.insert(music_data.music.track, (music_data.music.data, sound));
-                        // debug!("Loaded music \"{:?}\" successfully", music);
+                        Ok(())
                     }
-                    Err(err) => {
-                        // eprintln!("{}", err);
-                        // errors.push(AudioError::AddSoundError(err));
-                        // warn!("Problem loading music \"{:?}\" with error {}", music, err);
-                    }
+                    Err(err) => Err(AddAudioError::ManagerAddError(err)),
                 }
             }
-            None => {
-                // eprintln!("No audio manager");
-            }
+            None => Err(AddAudioError::NoManager),
         }
-        Err(err) => {
-            // eprintln!("{}", err);
-            // errors.push(AudioError::DecodeError(err));
-            // warn!("Problem decoding bytes of \"{:?}\" in executable with error {}", music, err);
-        }
+        Err(err) => Err(AddAudioError::DecodeError(err)),
     }
 }
 
-pub fn add_sound(sound_data: SerializedSoundData) {
+pub fn add_sound(sound_data: SerializedSoundData) -> Result<(), AddAudioError> {
     match super::from_ogg_bytes(&sound_data.bytes, SoundSettings::default()) {
         Ok(sound) => {
             match super::context::AUDIO_CONTEXT.lock().as_mut() {
@@ -54,20 +45,14 @@ pub fn add_sound(sound_data: SerializedSoundData) {
                     match context.add_sound(sound) {
                         Ok(sound) => {
                             super::sound::SOUND_MAP.insert(sound_data.sound, sound);
-                            // return ok
+                            Ok(())
                         }
-                        Err(err) => {
-                            // return err
-                        }
+                        Err(err) => Err(AddAudioError::ManagerAddError(err)),
                     }
                 }
-                None => {
-                    // return err
-                }
+                None => Err(AddAudioError::NoManager),
             }
         }
-        Err(err) => {
-            // return err
-        }
+        Err(err) => Err(AddAudioError::DecodeError(err)),
     }
 }
