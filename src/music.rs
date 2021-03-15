@@ -34,6 +34,7 @@ pub const fn file_name(music: &Music) -> &'static str {
         
         Music::EncounterBoy => "encounter_boy",
         Music::EncounterGirl => "encounter_girl",
+        Music::EncounterRival => "encounter_rival",
 
         Music::BattleWild => "vs_wild",
         Music::BattleTrainer => "vs_trainer",
@@ -51,6 +52,7 @@ pub const fn included_bytes(music: &Music) -> Option<&[u8]> { // To - do: Load d
             Music::Title => Some(include_bytes!("../music/title.ogg")),
             Music::Pallet => Some(include_bytes!("../music/pallet.ogg")),
             Music::EncounterBoy => Some(include_bytes!("../music/encounter_boy.ogg")),
+            Music::EncounterGirl => Some(include_bytes!("../music/encounter_girl.ogg")),
             Music::BattleWild => Some(include_bytes!("../music/vs_wild.ogg")),
             Music::BattleTrainer => Some(include_bytes!("../music/vs_trainer.ogg")),
             Music::BattleGym => Some(include_bytes!("../music/vs_gym.ogg")),
@@ -71,8 +73,8 @@ pub const fn included_bytes(music: &Music) -> Option<&[u8]> { // To - do: Load d
                     Music::Route4 => Some(include_bytes!("../music/route4.ogg")),
                     Music::MountMoon => Some(include_bytes!("../music/mt_moon.ogg")),
                     Music::Gym => Some(include_bytes!("../music/gym.ogg")),
-                    Music::EncounterGirl => Some(include_bytes!("../music/encounter_girl.ogg")),
                     Music::ViridianForest => Some(include_bytes!("../music/viridian_forest.ogg")),
+                    Music::EncounterRival => Some(include_bytes!("../music/encounter_rival.ogg")),
                     Music::Oak => Some(include_bytes!("../music/oak.ogg")),
                     Music::OaksLab => Some(include_bytes!("../music/oaks_lab.ogg")),
                     _ => None,
