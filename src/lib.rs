@@ -1,46 +1,50 @@
-use firecore_util::{music::Music, sound::Sound};
+use firecore_audio_lib::serialized::SerializedAudio;
+use firecore_util::{sound::Sound};
 
-pub mod music;
+mod music;
 pub mod sound;
 
 pub mod backend;
 
-#[test]
-fn main() {
-    println!("Test!");
-}
+pub use music::{add_track, get_music_id, play_music_id, play_music_named, get_current_music};
 
 // pub mod error;
 
 pub fn create() {
     #[cfg(not(target_arch = "wasm32"))]
-    if let Err(err) = backend::kira::context::AUDIO_CONTEXT.load() {
-        macroquad::prelude::warn!("Could not create Kira audio manager with error {}", err);
+    if let Err(err) = backend::kira::context::create() {
+        // macroquad::prelude::warn!("Could not create Kira audio manager with error {}", err);
     }
-    #[cfg(target_arch = "wasm32")]
-    backend::quadsnd::bind_gamefreak();
+    // #[cfg(target_arch = "wasm32")]
+    // backend::quadsnd::bind_gamefreak();
 }
 
-pub async fn bind_world_music() {
-    #[cfg(not(target_arch = "wasm32"))]
-    self::backend::kira::bind_world_music();
-    #[cfg(target_arch = "wasm32")]
-    self::backend::quadsnd::bind_world_music().await;
+pub fn load(data: SerializedAudio) {
+    for music_data in data.music {
+        add_track(music_data);
+    }
 }
 
-pub fn play_music(music: Music) {
-    #[cfg(not(target_arch = "wasm32"))]
-    self::backend::kira::context::music::MUSIC_CONTEXT.play_music(music);
-    #[cfg(target_arch = "wasm32")]
-    self::backend::quadsnd::music::play_music(music);
-}
+// pub async fn bind_world_music() {
+//     #[cfg(not(target_arch = "wasm32"))]
+//     self::backend::kira::bind_world_music();
+//     #[cfg(target_arch = "wasm32")]
+//     self::backend::quadsnd::bind_world_music().await;
+// }
 
-pub fn get_music_playing() -> Option<Music> {
-    #[cfg(not(target_arch = "wasm32"))]
-    return self::backend::kira::context::music::MUSIC_CONTEXT.get_music_playing();
-    #[cfg(target_arch = "wasm32")]
-    return self::backend::quadsnd::music::get_current_music();
-}
+// pub fn play_music(music: Music) {
+//     #[cfg(not(target_arch = "wasm32"))]
+//     self::backend::kira::context::music::MUSIC_CONTEXT.play_music(music);
+//     #[cfg(target_arch = "wasm32")]
+//     self::backend::quadsnd::music::play_music(music);
+// }
+
+// pub fn get_music_playing() -> Option<Music> {
+//     #[cfg(not(target_arch = "wasm32"))]
+//     return self::backend::kira::context::music::MUSIC_CONTEXT.get_music_playing();
+//     #[cfg(target_arch = "wasm32")]
+//     return self::backend::quadsnd::music::get_current_music();
+// }
 
 pub fn play_sound(sound: Sound) {
     // macroquad::prelude::info!("Playing sound {:?}", sound);

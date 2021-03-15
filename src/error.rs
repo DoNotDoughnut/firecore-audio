@@ -1,3 +1,7 @@
+pub enum PlayAudioException {
+    
+}
+
 #[derive(Debug)]
 pub enum SetupError {
 

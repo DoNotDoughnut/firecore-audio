@@ -1,20 +1,21 @@
 pub mod context;
+pub mod music;
 
-pub fn bind_world_music() {
-    if cfg!(not(target_arch = "wasm32")) {
-        std::thread::spawn( || {
-            bind_music_fn();
-        });
-    } else {
-        bind_music_fn();
-    }
-}
+// pub fn bind_world_music() {
+//     if cfg!(not(target_arch = "wasm32")) {
+//         std::thread::spawn( || {
+//             bind_music_fn();
+//         });
+//     } else {
+//         bind_music_fn();
+//     }
+// }
 
-fn bind_music_fn() {
-    // if let Some(mut audio_context) =  {
-        context::AUDIO_CONTEXT.bind_music();     
-    // }
-}
+// fn bind_music_fn() {
+//     // if let Some(mut audio_context) =  {
+//         context::AUDIO_CONTEXT.bind_music();     
+//     // }
+// }
 
 pub fn from_ogg_bytes(bytes: &[u8], settings: kira::sound::SoundSettings) -> Result<kira::sound::Sound, kira::sound::error::SoundFromFileError> {
     use lewton::samples::Samples;

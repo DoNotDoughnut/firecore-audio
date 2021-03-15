@@ -1,6 +1,6 @@
 [package]
 name = "firecore-audio"
-version = "0.0.1-alpha.1"
+version = "0.1.0-alpha.1"
 authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
 edition = "2018"
 
@@ -12,6 +12,7 @@ include = []
 
 ### Audio variables
 
+firecore-audio-lib = { path = "../firecore-audio-lib" }
 firecore-util = { git = "https://github.com/DoNotDoughnut/firecore-util" }
 
 ### Global, mutable variables
@@ -19,15 +20,6 @@ firecore-util = { git = "https://github.com/DoNotDoughnut/firecore-util" }
 lazy_static = "1.4"
 parking_lot = "0.11"
 dashmap = "4.0"
-
-### Serialization
-
-serde = { version = "1.0", features = ["derive"] }
-
-### Game engine (for logging)
-
-#macroquad = { git = "https://github.com/DoNotDoughnut/macroquad", default-features = false, features = ["log-impl", "experimental", "serde"] }
-macroquad = { git = "https://github.com/not-fl3/macroquad" }
 
 ### Audio libraries
 
@@ -37,3 +29,10 @@ lewton = { version = "0.10.1" } # Included in kira
 
 [target.'cfg(target_arch="wasm32")'.dependencies]
 quad-snd = { git = "https://github.com/not-fl3/quad-snd" } # WebAudio
+
+
+
+[dev-dependencies]
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"
+kira = { version = "0.4", default-features = false, features = ["ogg"] }

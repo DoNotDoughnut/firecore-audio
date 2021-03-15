@@ -1,90 +1,72 @@
-use firecore_util::music::Music;
+use dashmap::DashMap;
+use firecore_audio_lib::serialized::SerializedMusicData;
+use firecore_audio_lib::music::{MusicId, MusicName};
 
-pub const fn loop_start(music: &Music) -> Option<f64> {
-    match music {
-        Music::BattleWild => Some(13.15),
-        _ => None,
-    }
+lazy_static::lazy_static! {
+    pub static ref MUSIC_ID_MAP: DashMap<MusicName, MusicId> = DashMap::new();
 }
 
-pub const fn file_name(music: &Music) -> &'static str {
-    match music {
-
-        Music::IntroGamefreak => "gamefreak",
-        Music::Title => "title",
-
-        Music::Pallet => "pallet",
-        Music::Pewter => "pewter",
-        Music::Fuchsia => "fuchsia",
-        Music::Lavender => "lavender",
-        Music::Celadon => "celadon",
-        Music::Cinnabar => "cinnabar",
-        Music::Vermilion => "vermilion",
-
-        Music::Route1 => "route1",
-        Music::Route2 => "route2",
-        Music::Route3 => "route3",
-        Music::Route4 => "route4",
-
-        Music::Gym => "gym",
-        Music::ViridianForest => "viridian_forest",
-        Music::MountMoon => "mt_moon",
-        Music::OaksLab => "oaks_lab",
-
-        
-        Music::EncounterBoy => "encounter_boy",
-        Music::EncounterGirl => "encounter_girl",
-        Music::EncounterRival => "encounter_rival",
-
-        Music::BattleWild => "vs_wild",
-        Music::BattleTrainer => "vs_trainer",
-        Music::BattleGym => "vs_gym",
-
-        Music::Oak => "oak",
-        
-    }
+pub fn add_track(music_data: SerializedMusicData) {
+    MUSIC_ID_MAP.insert(music_data.data.identifier.clone(), music_data.data.track_id);
+    #[cfg(not(target_arch = "wasm32"))]
+    crate::backend::kira::context::add_track(music_data);
 }
 
-pub const fn included_bytes(music: &Music) -> Option<&[u8]> { // To - do: Load dynamically from assets folder instead of specifying this
-    #[cfg(feature = "include")] {
-        let mut bytes: Option<&[u8]> = match music {
-            Music::IntroGamefreak => Some(include_bytes!("../music/gamefreak.ogg")),
-            Music::Title => Some(include_bytes!("../music/title.ogg")),
-            Music::Pallet => Some(include_bytes!("../music/pallet.ogg")),
-            Music::EncounterBoy => Some(include_bytes!("../music/encounter_boy.ogg")),
-            Music::EncounterGirl => Some(include_bytes!("../music/encounter_girl.ogg")),
-            Music::BattleWild => Some(include_bytes!("../music/vs_wild.ogg")),
-            Music::BattleTrainer => Some(include_bytes!("../music/vs_trainer.ogg")),
-            Music::BattleGym => Some(include_bytes!("../music/vs_gym.ogg")),
-            Music::Pewter => Some(include_bytes!("../music/pewter.ogg")),
-            Music::Route1 => Some(include_bytes!("../music/route1.ogg")),
-            Music::Route2 => Some(include_bytes!("../music/route2.ogg")),
-            _ => None,
-        };
-        #[cfg(any(debug_assertions, target_arch = "wasm32"))] {
-            if bytes.is_none() {
-                bytes = match music {
-                    Music::Fuchsia => Some(include_bytes!("../music/fuchsia.ogg")),
-                    Music::Lavender => Some(include_bytes!("../music/lavender.ogg")),
-                    Music::Celadon => Some(include_bytes!("../music/celadon.ogg")),
-                    Music::Cinnabar => Some(include_bytes!("../music/cinnabar.ogg")),
-                    Music::Vermilion => Some(include_bytes!("../music/vermilion.ogg")),
-                    Music::Route3 => Some(include_bytes!("../music/route3.ogg")),
-                    Music::Route4 => Some(include_bytes!("../music/route4.ogg")),
-                    Music::MountMoon => Some(include_bytes!("../music/mt_moon.ogg")),
-                    Music::Gym => Some(include_bytes!("../music/gym.ogg")),
-                    Music::ViridianForest => Some(include_bytes!("../music/viridian_forest.ogg")),
-                    Music::EncounterRival => Some(include_bytes!("../music/encounter_rival.ogg")),
-                    Music::Oak => Some(include_bytes!("../music/oak.ogg")),
-                    Music::OaksLab => Some(include_bytes!("../music/oaks_lab.ogg")),
-                    _ => None,
-                }
-            }
+pub fn get_music_id(name: &str) -> Option<MusicId> {
+    MUSIC_ID_MAP.get(name).map(|id| *id.value())
+}
+
+pub fn play_music_id(id: MusicId) {
+    #[cfg(not(target_arch = "wasm32"))]
+    crate::backend::kira::music::play_music(id);
+}
+
+pub fn play_music_named(name: &str) {
+    match get_music_id(&name.to_string()) {
+        Some(id) => {
+            play_music_id(id);
         }
-        
-        bytes
+        None => {
+
+        }
     }
-    #[cfg(not(feature = "include"))] {
+    
+}
+
+pub fn get_current_music() -> Option<MusicId> {
+    #[cfg(not(target_arch = "wasm32"))] {
+        crate::backend::kira::music::get_current_music()
+    }
+    #[cfg(target_arch = "wasm32")] {
         None
     }
 }
+
+// pub const fn included_bytes(music: &Music) -> Option<&[u8]> { // To - do: Load dynamically from assets folder instead of specifying this
+//     match music {
+//         Music::IntroGamefreak => Some(include_bytes!("../music/gamefreak.ogg")),
+//         Music::Title => Some(include_bytes!("../music/title.ogg")),
+//         Music::Pallet => Some(include_bytes!("../music/pallet.ogg")),
+//         Music::EncounterBoy => Some(include_bytes!("../music/encounter_boy.ogg")),
+//         Music::EncounterGirl => Some(include_bytes!("../music/encounter_girl.ogg")),
+//         Music::BattleWild => Some(include_bytes!("../music/vs_wild.ogg")),
+//         Music::BattleTrainer => Some(include_bytes!("../music/vs_trainer.ogg")),
+//         Music::BattleGym => Some(include_bytes!("../music/vs_gym.ogg")),
+//         Music::Pewter => Some(include_bytes!("../music/pewter.ogg")),
+//         Music::Route1 => Some(include_bytes!("../music/route1.ogg")),
+//         Music::Route2 => Some(include_bytes!("../music/route2.ogg")),
+//         Music::Fuchsia => Some(include_bytes!("../music/fuchsia.ogg")),
+//         Music::Lavender => Some(include_bytes!("../music/lavender.ogg")),
+//         Music::Celadon => Some(include_bytes!("../music/celadon.ogg")),
+//         Music::Cinnabar => Some(include_bytes!("../music/cinnabar.ogg")),
+//         Music::Vermilion => Some(include_bytes!("../music/vermilion.ogg")),
+//         Music::Route3 => Some(include_bytes!("../music/route3.ogg")),
+//         Music::Route4 => Some(include_bytes!("../music/route4.ogg")),
+//         Music::MountMoon => Some(include_bytes!("../music/mt_moon.ogg")),
+//         Music::Gym => Some(include_bytes!("../music/gym.ogg")),
+//         Music::ViridianForest => Some(include_bytes!("../music/viridian_forest.ogg")),
+//         Music::EncounterRival => Some(include_bytes!("../music/encounter_rival.ogg")),
+//         Music::Oak => Some(include_bytes!("../music/oak.ogg")),
+//         Music::OaksLab => Some(include_bytes!("../music/oaks_lab.ogg")),
+//     }
+// }
