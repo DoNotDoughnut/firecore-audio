@@ -16,14 +16,15 @@ pub use sound::{add_sound, play_sound};
 // pub mod error;
 
 pub fn create() -> Result<(), SetupError> {
-    #[cfg(not(target_arch = "wasm32"))]
-    if let Err(err) = backend::kira::context::create() {
+    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
+    return if let Err(err) = backend::kira::context::create() {
         Err(SetupError::SetupError(err))
     } else {
         Ok(())
-    }
+    };
     // #[cfg(target_arch = "wasm32")]
     // backend::quadsnd::bind_gamefreak();
+    Ok(())
 }
 
 pub fn load(data: SerializedAudio) -> Result<(), AddAudioError> {

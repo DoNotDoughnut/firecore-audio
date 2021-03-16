@@ -10,7 +10,7 @@ lazy_static::lazy_static! {
 
 pub fn add_track(music_data: SerializedMusicData) -> Result<(), crate::error::AddAudioError> {
     MUSIC_ID_MAP.insert(music_data.music.name.clone(), music_data.music.track);
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
     crate::backend::kira::context::add_track(music_data)?;
     Ok(())
 }
@@ -20,7 +20,7 @@ pub fn get_music_id(name: &str) -> Option<MusicId> {
 }
 
 pub fn play_music_id(id: MusicId) -> Result<(), PlayAudioError> {
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
     crate::backend::kira::music::play_music(id)?;
     Ok(())
 }
@@ -39,10 +39,8 @@ pub fn play_music_named(name: &str) -> Result<(), PlayAudioError> {
 }
 
 pub fn get_current_music() -> Option<MusicId> {
-    #[cfg(not(target_arch = "wasm32"))] {
-        crate::backend::kira::music::get_current_music()
+    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))] {
+        return crate::backend::kira::music::get_current_music();
     }
-    #[cfg(target_arch = "wasm32")] {
-        None
-    }
+    None
 }
