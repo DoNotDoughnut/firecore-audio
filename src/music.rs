@@ -40,7 +40,9 @@ pub fn play_music_named(name: &str) -> Result<(), PlayAudioError> {
 
 pub fn get_current_music() -> Option<MusicId> {
     #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))] {
-        return crate::backend::kira::music::get_current_music();
+        crate::backend::kira::music::get_current_music()
     }
-    None
+    #[cfg(any(target_arch = "wasm32", not(feature = "kira")))] {
+        None
+    }
 }
