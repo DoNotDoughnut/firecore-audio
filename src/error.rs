@@ -67,7 +67,9 @@ impl Display for PlayAudioError {
             #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
             PlayAudioError::CurrentError(err) => write!(f, "Could not stop audio instance with error {}", err),
             #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
-            PlayAudioError::PlayError(err) => write!(f, "Could not play audio with error {}", err)
+            PlayAudioError::PlayError(err) => write!(f, "Could not play audio with error {}", err),
+            #[cfg(target_arch = "wasm32")]
+            PlayAudioError::PlayError() => write!(f, "Could not play audio with error"),
         }
     }
 }
