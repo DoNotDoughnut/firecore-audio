@@ -2,16 +2,15 @@ use kira::instance::InstanceSettings;
 use kira::instance::StopInstanceSettings;
 use kira::instance::handle::InstanceHandle;
 use kira::sound::handle::SoundHandle;
-use dashmap::DashMap;
+use ahash::AHashMap as HashMap;
 use parking_lot::Mutex;
 use firecore_audio_lib::music::{MusicId, MusicData};
+use parking_lot::const_mutex;
 
 use crate::error::PlayAudioError;
 
-lazy_static::lazy_static! {
-    pub static ref MUSIC_MAP: DashMap<MusicId, (MusicData, SoundHandle)> = DashMap::new();
-    pub static ref CURRENT_MUSIC: Mutex<Option<(MusicId, InstanceHandle)>> = Mutex::new(None);
-}
+pub static MUSIC_MAP: Mutex<Option<HashMap<MusicId, (MusicData, SoundHandle)>>> = const_mutex(None);
+pub static CURRENT_MUSIC: Mutex<Option<(MusicId, InstanceHandle)>> = const_mutex(None);
 
 pub fn play_music(music: MusicId) -> Result<(), PlayAudioError> {
     match CURRENT_MUSIC.try_lock() {
@@ -26,17 +25,17 @@ pub fn play_music(music: MusicId) -> Result<(), PlayAudioError> {
             return Err(PlayAudioError::CurrentLocked);
         }
     }
-    match MUSIC_MAP.get_mut(&music) {
-        Some(mut music) => {
+    match MUSIC_MAP.lock().as_mut().unwrap().get_mut(&music) {
+        Some((music_data, audio)) => {
             match CURRENT_MUSIC.try_lock() {
                 Some(mut current) => {
-                    let loop_start = music.0.loop_start.unwrap_or_default();
-                    match music.1.play(InstanceSettings {
+                    let loop_start = music_data.loop_start.unwrap_or_default();
+                    match audio.play(InstanceSettings {
                         loop_start: kira::instance::InstanceLoopStart::Custom(loop_start),
                         ..Default::default()
                     }) {
                         Ok(instance) => {
-                            *current = Some((*music.key(), instance));
+                            *current = Some((music, instance));
                             Ok(())
                         }
                         Err(err) => {

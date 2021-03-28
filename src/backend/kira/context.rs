@@ -3,18 +3,21 @@ use firecore_audio_lib::serialized::SerializedSoundData;
 use kira::manager::AudioManager;
 use kira::sound::SoundSettings;
 use parking_lot::Mutex;
+use parking_lot::const_mutex;
+use ahash::AHashMap as HashMap;
 
 use crate::error::AddAudioError;
 
-lazy_static::lazy_static! {
-    pub static ref AUDIO_CONTEXT: Mutex<Option<AudioManager>> = Mutex::new(None);
-}
+pub static AUDIO_CONTEXT: Mutex<Option<AudioManager>> = const_mutex(None);
 
 pub fn create() -> Result<(), kira::manager::error::SetupError> {
     *AUDIO_CONTEXT.lock() = match AudioManager::new(kira::manager::AudioManagerSettings::default()) {
         Ok(am) => Some(am),
         Err(err) => return Err(err),
     };
+
+    *super::music::MUSIC_MAP.lock() = Some(HashMap::new());
+    *super::sound::SOUND_MAP.lock() = Some(HashMap::new());
 
     Ok(())
 }
@@ -25,7 +28,7 @@ pub fn add_track(music_data: SerializedMusicData) -> Result<(), AddAudioError> {
             Some(manager) => {
                 match manager.add_sound(sound) {
                     Ok(sound) => {
-                        super::music::MUSIC_MAP.insert(music_data.music.track, (music_data.music.data, sound));
+                        super::music::MUSIC_MAP.lock().as_mut().unwrap().insert(music_data.music.track, (music_data.music.data, sound));
                         Ok(())
                     }
                     Err(err) => Err(AddAudioError::ManagerAddError(err)),
@@ -44,7 +47,7 @@ pub fn add_sound(sound_data: SerializedSoundData) -> Result<(), AddAudioError> {
                 Some(context) => {
                     match context.add_sound(sound) {
                         Ok(sound) => {
-                            super::sound::SOUND_MAP.insert(sound_data.sound, sound);
+                            super::sound::SOUND_MAP.lock().as_mut().unwrap().insert(sound_data.sound, sound);
                             Ok(())
                         }
                         Err(err) => Err(AddAudioError::ManagerAddError(err)),

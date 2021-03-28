@@ -18,16 +18,23 @@ pub use sound::{add_sound, play_sound};
 // pub mod error;
 
 pub fn create() -> Result<(), SetupError> {
-    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))] {
-        if let Err(err) = backend::kira::context::create() {
-            Err(SetupError::SetupError(err))
-        } else {
+    #[cfg(feature = "play")] {
+        *music::MUSIC_ID_MAP.lock() = Some(ahash::AHashMap::new());
+        #[cfg(not(target_arch = "wasm32"))] {
+            if let Err(err) = backend::kira::context::create() {
+                Err(SetupError::SetupError(err))
+            } else {
+                Ok(())
+            }
+        }
+        #[cfg(target_arch = "wasm32")] {
             Ok(())
         }
     }
-    #[cfg(any(target_arch = "wasm32", not(feature = "kira")))] {
+    #[cfg(not(feature = "play"))] {
         Ok(())
     }
+    
     
     // #[cfg(target_arch = "wasm32")]
     // backend::quadsnd::bind_gamefreak();
