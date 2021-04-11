@@ -2,17 +2,15 @@ use std::error::Error;
 use core::fmt::Display;
 
 #[derive(Debug)]
-pub enum SetupError {
-    #[cfg(all(not(target_arch = "wasm32"), feature = "play"))]
-    SetupError(kira::manager::error::SetupError),
-}
-
-#[derive(Debug)]
 pub enum AddAudioError {
     #[cfg(feature = "play")]
     Uninitialized,
     #[cfg(feature = "play")]
     NoManager,
+
+    #[cfg(all(not(target_arch = "wasm32"), feature = "play"))]
+    SetupError(kira::manager::error::SetupError),
+
     #[cfg(all(not(target_arch = "wasm32"), feature = "play"))]
     DecodeError(kira::sound::error::SoundFromFileError),
     // #[cfg(target_arch = "wasm32")]
@@ -37,14 +35,6 @@ pub enum PlayAudioError {
     PlayError(),
 }
 
-impl Error for SetupError {}
-
-impl Display for SetupError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(&self, f)
-    }
-}
-
 impl Error for AddAudioError {}
 
 impl Display for AddAudioError {
@@ -54,9 +44,11 @@ impl Display for AddAudioError {
                 Self::Uninitialized => write!(f, "Audio manager is uninitialized!"),
                 Self::NoManager => write!(f, "Audio manager could not be found. (You probably forgot to initialize it)"),
                 #[cfg(not(target_arch = "wasm32"))]
-                Self::DecodeError(err) => write!(f, "{}", err),
+                Self::SetupError(err) => Display::fmt(err, f),
                 #[cfg(not(target_arch = "wasm32"))]
-                Self::ManagerAddError(err) => write!(f, "{}", err),
+                Self::DecodeError(err) => Display::fmt(err, f),
+                #[cfg(not(target_arch = "wasm32"))]
+                Self::ManagerAddError(err) => Display::fmt(err, f),
             }
         }
         #[cfg(not(feature = "play"))] {
