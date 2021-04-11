@@ -28,8 +28,15 @@ pub fn add_track(music_data: SerializedMusicData) -> Result<(), AddAudioError> {
             Some(manager) => {
                 match manager.add_sound(sound) {
                     Ok(sound) => {
-                        super::music::MUSIC_MAP.lock().as_mut().unwrap().insert(music_data.music.track, (music_data.music.data, sound));
-                        Ok(())
+                        match super::music::MUSIC_MAP.lock().as_mut() {
+                            Some(map) => {
+                                map.insert(music_data.music.track, (music_data.music.data, sound));
+                                Ok(())
+                            }
+                            None => {
+                                Err(AddAudioError::Uninitialized)
+                            }
+                        }
                     }
                     Err(err) => Err(AddAudioError::ManagerAddError(err)),
                 }
@@ -47,8 +54,13 @@ pub fn add_sound(sound_data: SerializedSoundData) -> Result<(), AddAudioError> {
                 Some(context) => {
                     match context.add_sound(sound) {
                         Ok(sound) => {
-                            super::sound::SOUND_MAP.lock().as_mut().unwrap().insert(sound_data.sound, sound);
-                            Ok(())
+                            match super::sound::SOUND_MAP.lock().as_mut() {
+                                Some(map) => {
+                                    map.insert(sound_data.sound, sound);
+                                    Ok(())
+                                }
+                                None => Err(AddAudioError::Uninitialized)
+                            }
                         }
                         Err(err) => Err(AddAudioError::ManagerAddError(err)),
                     }

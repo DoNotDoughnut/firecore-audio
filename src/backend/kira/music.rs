@@ -25,34 +25,42 @@ pub fn play_music(music: MusicId) -> Result<(), PlayAudioError> {
             return Err(PlayAudioError::CurrentLocked);
         }
     }
-    match MUSIC_MAP.lock().as_mut().unwrap().get_mut(&music) {
-        Some((music_data, audio)) => {
-            match CURRENT_MUSIC.try_lock() {
-                Some(mut current) => {
-                    let loop_start = music_data.loop_start.unwrap_or_default();
-                    match audio.play(InstanceSettings {
-                        loop_start: kira::instance::InstanceLoopStart::Custom(loop_start),
-                        ..Default::default()
-                    }) {
-                        Ok(instance) => {
-                            *current = Some((music, instance));
-                            Ok(())
+    match MUSIC_MAP.lock().as_mut() {
+        Some(map) => {
+            match map.get_mut(&music) {
+                Some((music_data, audio)) => {
+                    match CURRENT_MUSIC.try_lock() {
+                        Some(mut current) => {
+                            let loop_start = music_data.loop_start.unwrap_or_default();
+                            match audio.play(InstanceSettings {
+                                loop_start: kira::instance::InstanceLoopStart::Custom(loop_start),
+                                ..Default::default()
+                            }) {
+                                Ok(instance) => {
+                                    *current = Some((music, instance));
+                                    Ok(())
+                                }
+                                Err(err) => {
+                                    Err(PlayAudioError::PlayError(err))
+                                }
+                            }
                         }
-                        Err(err) => {
-                            Err(PlayAudioError::PlayError(err))
+                        None => {
+                            Err(PlayAudioError::CurrentLocked)
                         }
                     }
+                    
                 }
                 None => {
-                    Err(PlayAudioError::CurrentLocked)
+                    Err(PlayAudioError::Missing)
                 }
             }
-            
         }
         None => {
-            Err(PlayAudioError::Missing)
+            Err(PlayAudioError::Uninitialized)
         }
-    }   
+    }
+       
 }
 
 pub fn get_current_music() -> Option<MusicId> {

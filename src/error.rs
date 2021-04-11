@@ -10,6 +10,8 @@ pub enum SetupError {
 #[derive(Debug)]
 pub enum AddAudioError {
     #[cfg(feature = "play")]
+    Uninitialized,
+    #[cfg(feature = "play")]
     NoManager,
     #[cfg(all(not(target_arch = "wasm32"), feature = "play"))]
     DecodeError(kira::sound::error::SoundFromFileError),
@@ -21,6 +23,8 @@ pub enum AddAudioError {
 
 #[derive(Debug)]
 pub enum PlayAudioError {
+    #[cfg(feature = "play")]
+    Uninitialized,
     #[cfg(feature = "play")]
     Missing,
     #[cfg(feature = "play")]
@@ -47,6 +51,7 @@ impl Display for AddAudioError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         #[cfg(feature = "play")] {
             match self {
+                Self::Uninitialized => write!(f, "Audio manager is uninitialized!"),
                 Self::NoManager => write!(f, "Audio manager could not be found. (You probably forgot to initialize it)"),
                 #[cfg(not(target_arch = "wasm32"))]
                 Self::DecodeError(err) => write!(f, "{}", err),
@@ -66,6 +71,7 @@ impl Display for PlayAudioError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         #[cfg(feature = "play")] {
             match self {
+                &PlayAudioError::Uninitialized => write!(f, "Audio manager is uninitialized!"),
                 PlayAudioError::Missing => write!(f, "Could not find music with specified id!"),
                 PlayAudioError::CurrentLocked => write!(f, "Could not unlock current music mutex!"),
                 #[cfg(all(not(target_arch = "wasm32"), feature = "play"))]
