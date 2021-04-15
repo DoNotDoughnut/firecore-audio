@@ -15,13 +15,17 @@ pub use music::{add_track, get_music_id, play_music_id, play_music_named, get_cu
 pub use sound::{add_sound, play_sound};
 
 #[cfg(feature = "play")]
-pub fn load(data: SerializedAudio) -> Result<(), AddAudioError> {
+pub fn create() -> Result<(), AddAudioError> {
     *music::MUSIC_ID_MAP.lock() = Some(ahash::AHashMap::new());
     #[cfg(not(target_arch = "wasm32"))] {
-        if let Err(err) = backend::kira::context::create() {
-            return Err(AddAudioError::SetupError(err));
-        }
+        backend::kira::context::create().map_err(|err| AddAudioError::SetupError(err))
     }
+    #[cfg(target_arch = "wasm32")]
+    Ok(())
+}
+
+#[cfg(feature = "play")]
+pub fn load(data: SerializedAudio) -> Result<(), AddAudioError> {
     for music_data in data.music {
         add_track(music_data)?;
     }
