@@ -10,5 +10,5 @@ edition = "2018"
 firecore-audio-lib = { path = "../lib", features = ["file"] }
 
 serde = { version = "1.0", features = ["derive"] }
-postcard = { version = "0.6", features = ["alloc"] }
+postcard = { version = "0.6", default-features = false, features = ["alloc"] }
 ron = "0.6"
