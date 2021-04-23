@@ -1,4 +1,4 @@
-use ahash::AHashMap as HashMap;
+use util::hash::HashMap;
 use firecore_audio_lib::sound::Sound;
 use kira::sound::handle::SoundHandle;
 use parking_lot::Mutex;
