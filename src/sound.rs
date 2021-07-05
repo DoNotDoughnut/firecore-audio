@@ -1,15 +1,38 @@
-use firecore_audio_lib::serialized::SerializedSoundData;
-use firecore_audio_lib::sound::Sound;
+use deps::str::TinyStr8;
 
-pub fn play_sound(sound: Sound) -> Result<(), crate::error::PlayAudioError> {
-    // macroquad::prelude::info!("Playing sound {:?}", sound);
-    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
-    super::backend::kira::sound::play_sound(&sound)?;
-    Ok(())
+pub type SoundId = TinyStr8;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Deserialize, serde::Serialize)]
+pub struct Sound {
+
+    pub name: SoundId,
+    pub variant: Option<u16>,
+
 }
 
-pub fn add_sound(sound_data: SerializedSoundData) -> Result<(), crate::error::AddAudioError> {
-    #[cfg(all(not(target_arch = "wasm32"), feature = "kira"))]
-    super::backend::kira::context::add_sound(sound_data)?;
-    Ok(())
+impl Sound {
+
+    pub fn named(name: TinyStr8) -> Self {
+        Self {
+            name,
+            variant: None,
+        }
+    }
+
+    pub fn variant(name: TinyStr8, variant: Option<u16>) -> Self {
+        Self {
+            name,
+            variant,
+        }
+    }
+
+}
+
+impl core::fmt::Display for Sound {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.variant {
+            Some(variant) => write!(f, "{} #{}", self.name, variant),
+            None => core::fmt::Display::fmt(&self.name, f)
+        }
+    }
 }
