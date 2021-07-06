@@ -1,17 +1,11 @@
 use serde::{Deserialize, Serialize};
 
+use crate::Audio;
+
 pub type MusicId = u8;
 pub type MusicName = String;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Music {
-
-    pub track: MusicId,
-    pub name: MusicName,
-    #[serde(default)]
-    pub data: MusicData,
-
-}
+pub type Music = Audio<MusicId>;
 
 #[derive(Default, Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct MusicData {

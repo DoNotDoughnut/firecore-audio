@@ -1,38 +1,41 @@
-use deps::str::TinyStr8;
+use serde::{Deserialize, Serialize};
 
-pub type SoundId = TinyStr8;
+use crate::Audio;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Deserialize, serde::Serialize)]
-pub struct Sound {
+pub type SoundCategory = u16;
+pub type SoundVariant = Option<u16>;
 
-    pub name: SoundId,
-    pub variant: Option<u16>,
+pub type Sound = Audio<SoundId>;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Deserialize, Serialize)]
+pub struct SoundId {
+    pub category: SoundCategory,
+    pub variant: SoundVariant,
 }
 
-impl Sound {
+impl SoundId {
 
-    pub fn named(name: TinyStr8) -> Self {
+    pub fn new(category: SoundCategory) -> Self {
         Self {
-            name,
+            category,
             variant: None,
         }
     }
 
-    pub fn variant(name: TinyStr8, variant: Option<u16>) -> Self {
+    pub fn variant(category: SoundCategory, variant: SoundVariant) -> Self {
         Self {
-            name,
+            category,
             variant,
         }
     }
 
 }
 
-impl core::fmt::Display for Sound {
+impl core::fmt::Display for SoundId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.variant {
-            Some(variant) => write!(f, "{} #{}", self.name, variant),
-            None => core::fmt::Display::fmt(&self.name, f)
+            Some(variant) => write!(f, "{} #{}", self.category, variant),
+            None => core::fmt::Display::fmt(&self.category, f)
         }
     }
 }

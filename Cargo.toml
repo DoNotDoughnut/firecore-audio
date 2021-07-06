@@ -1,6 +1,6 @@
 [package]
 name = "firecore-audio"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
 edition = "2018"
 
@@ -10,4 +10,3 @@ file = []
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-firecore-dependencies = { git = "https://github.com/DoNotDoughnut/firecore-dependencies", features = ["str"] }
