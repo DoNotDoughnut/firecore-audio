@@ -1,13 +1,17 @@
 [package]
 name = "firecore-audio"
-version = "0.1.1"
-authors = ["Rhys Holloway <rhyswilliamholloway@gmail.com>"]
+description = "Utility library for classifying sound/music tracks in my game"
+version = "0.0.1"
+authors = ["Rhys H <donotdoughnut99@gmail.com>"]
 edition = "2018"
+license = "MIT"
+repository = "https://github.com/fiirecore/audio"
+readme = "README.md"
 
 [features]
 default = []
 file = []
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-firecore-dependencies = { git = "https://github.com/DoNotDoughnut/firecore-dependencies", features = ["str"] }
+serde = { version = "1", features = ["derive"] }
+tinystr = { version = "0.4", features = ["serde"], default-features = false }
